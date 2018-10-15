@@ -1,8 +1,15 @@
+const http = require('http');
 const express = require('express');
 const app = express();
 
-let apiRoute = require('./api');
-let statusRoute = require('./status');
+const port = 8000;
+
+app.set('port', port);
+let server = http.createServer(app);
+server.listen(port);
+
+let apiRoute = require('./routes/api');
+let statusRoute = require('./routes/status');
 
 app.use(express.json());
 app.use(express.urlencoded());

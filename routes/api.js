@@ -8,6 +8,7 @@ const correctTypes = ['info', 'critical']; //  Массив корректных
 
 /**
  * Класс для генерации ошибки некорректного входного параметра
+ * Нужен для добавления errno и удобного управления статусами ответа при ошибке
  */
 class ParamTypeError {
     constructor(errno, message) {
@@ -24,14 +25,6 @@ router.post('/events', function(req, res) {
     sendResponse(res, req.body.type, req.body.page);
 });
 
-function sendResponse(res, type, page) {
-    try {
-        sendData(res, type, page);
-    } catch(error) {
-        sendError(res, error);
-    }
-}
-
 /**
  * Функция обработчик запроса
  * Выполняет асинхронное чтение json, вызывает функцию для разбиения данных на страницы и
@@ -40,38 +33,45 @@ function sendResponse(res, type, page) {
  * @param page
  * @param res
  */
-function sendData(res, type, page) {
+function sendResponse(res, type, page) {
     let params = checkParams(type, page);
 
     fs.readFile("events.json", "utf8",
         function(error, data) {
-            try {
-                if(error) throw error; // Не уверен, что это хорошая практика, но чтобы не плодить if и обработать исключение
-
-                const dataJSON = JSON.parse(data);
-                let dataPages = makePagination(dataJSON.events, params.type);
-
-                const dataPagesNum = dataPages.length;
-
-                if(params.page < 1) params.page = 1;
-                if(params.page > dataPagesNum) params.page = dataPagesNum;
-
-                res.json({
-                    data: dataPages[params.page - 1],
-                    error: null,
-                    pagination: {
-                        prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
-                        currentPage: params.page,
-                        total: dataPagesNum,
-                        nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
-                    }
-                });
-            } catch(error) {
+            if(error) {
                 sendError(res, error);
+            } else {
+                try {
+                    const dataJSON = JSON.parse(data);
+                    let dataPages = makePagination(dataJSON.events, params.type);
+
+                    const dataPagesNum = dataPages.length;
+
+                    if(params.page < 1) params.page = 1;
+                    if(params.page > dataPagesNum) params.page = dataPagesNum;
+
+                    res.json({
+                        data: dataPages[params.page - 1],
+                        error: null,
+                        pagination: {
+                            prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
+                            currentPage: params.page,
+                            total: dataPagesNum,
+                            nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
+                        }
+                    });
+                } catch(error) {
+                    sendError(res, error);
+                }
             }
         });
 }
 
+/**
+ * Функция для отправки ошибки
+ * @param res
+ * @param error
+ */
 function sendError(res, error) {
     if(!error.errno) error.errno = 500;
     res.status(error.errno).json({
@@ -96,7 +96,8 @@ function sendError(res, error) {
 function checkParams(type, page) {
     if((correctTypes.indexOf(type) === -1) && type) throw new ParamTypeError(400, 'Неверный тип параметра type');
     if(!type) type = 'all';
-    if(!page || !(+page instanceof Number)) page = 1;
+    if(!page || isNaN(+page)) page = 1;
+
     return {
         type: type,
         page: +page

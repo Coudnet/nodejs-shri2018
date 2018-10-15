@@ -12,15 +12,13 @@
 **pagination**: Obj
 
 
-Объект Pagination:\
+Объект **Pagination**:\
 **currentPage**: Number,\
 **nextyPage**: Number,\
 **prevPage**: Number,\
 **total**: Number
 
-Объект Error:\
-**code**: Number,\
+Объект **Error**:\
 **msg**: String
 
 Для api/events реализована возможность выполнять и GET и POST запросы
-ToDo - отсутствие сортировки, если отсутствует параметр type

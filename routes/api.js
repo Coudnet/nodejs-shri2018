@@ -34,37 +34,41 @@ router.post('/events', function(req, res) {
  * @param res
  */
 function sendResponse(res, type, page) {
-    let params = checkParams(type, page);
+    try {
+        let params = checkParams(type, page);
 
-    fs.readFile("events.json", "utf8",
-        function(error, data) {
-            if(error) {
-                sendError(res, error);
-            } else {
-                try {
-                    const dataJSON = JSON.parse(data);
-                    let dataPages = makePagination(dataJSON.events, params.type);
-
-                    const dataPagesNum = dataPages.length;
-
-                    if(params.page < 1) params.page = 1;
-                    if(params.page > dataPagesNum) params.page = dataPagesNum;
-
-                    res.json({
-                        data: dataPages[params.page - 1],
-                        error: null,
-                        pagination: {
-                            prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
-                            currentPage: params.page,
-                            total: dataPagesNum,
-                            nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
-                        }
-                    });
-                } catch(error) {
+        fs.readFile("events.json", "utf8",
+            function(error, data) {
+                if(error) {
                     sendError(res, error);
+                } else {
+                    try {
+                        const dataJSON = JSON.parse(data);
+                        let dataPages = makePagination(dataJSON.events, params.type);
+
+                        const dataPagesNum = dataPages.length;
+
+                        if(params.page < 1) params.page = 1;
+                        if(params.page > dataPagesNum) params.page = dataPagesNum;
+
+                        res.json({
+                            data: dataPages[params.page - 1],
+                            error: null,
+                            pagination: {
+                                prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
+                                currentPage: params.page,
+                                total: dataPagesNum,
+                                nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
+                            }
+                        });
+                    } catch(error) {
+                        sendError(res, error);
+                    }
                 }
-            }
-        });
+            });
+    } catch(error) {
+        sendError(res, error);
+    }
 }
 
 /**

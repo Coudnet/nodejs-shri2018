@@ -1,6 +1,7 @@
 const http = require('http');
 const express = require('express');
 const app = express();
+const bodyParser = require("body-parser");
 
 const port = 8000;
 
@@ -11,8 +12,10 @@ server.listen(port);
 let apiRoute = require('./routes/api');
 let statusRoute = require('./routes/status');
 
-app.use(express.json());
-app.use(express.urlencoded());
+//app.use(express.json());
+//app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use('/api', apiRoute);
 app.use('/status', statusRoute);

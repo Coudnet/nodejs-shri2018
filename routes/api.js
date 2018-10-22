@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require("fs");
 
-const pageSize = 2; // Размер страницы выдачи
+const pageSize = 10; // Размер страницы выдачи
 
 const correctTypes = ['info', 'critical']; //  Массив корректных параметров
 
@@ -34,41 +34,43 @@ router.post('/events', function(req, res) {
  * @param res
  */
 function sendResponse(res, type, page) {
-    try {
+    ReadFile().then((data) => {
+
         let params = checkParams(type, page);
+        let dataPages = makePagination(data.events, params.type);
 
-        fs.readFile("events.json", "utf8",
-            function(error, data) {
-                if(error) {
-                    sendError(res, error);
-                } else {
-                    try {
-                        const dataJSON = JSON.parse(data);
-                        let dataPages = makePagination(dataJSON.events, params.type);
+        const dataPagesNum = dataPages.length;
 
-                        const dataPagesNum = dataPages.length;
+        if(params.page < 1) params.page = 1;
+        if(params.page > dataPagesNum) params.page = dataPagesNum;
 
-                        if(params.page < 1) params.page = 1;
-                        if(params.page > dataPagesNum) params.page = dataPagesNum;
-
-                        res.json({
-                            data: dataPages[params.page - 1],
-                            error: null,
-                            pagination: {
-                                prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
-                                currentPage: params.page,
-                                total: dataPagesNum,
-                                nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
-                            }
-                        });
-                    } catch(error) {
-                        sendError(res, error);
-                    }
-                }
-            });
-    } catch(error) {
+        res.json({
+            data: dataPages[params.page - 1],
+            error: null,
+            pagination: {
+                prevPage: ((params.page - 1) < 1) ? null : (params.page - 1),
+                currentPage: params.page,
+                total: dataPagesNum,
+                nextPage: ((params.page + 1) > dataPagesNum) ? null : (params.page + 1)
+            }
+        });
+    }).catch((error) => {
         sendError(res, error);
-    }
+    })
+}
+
+function ReadFile() {
+    return new Promise((resolve, reject) => {
+        fs.readFile("events.json", "utf8", function(error, data) {
+            if(error) reject(error);
+            try {
+                const dataJSON = JSON.parse(data);
+                resolve(dataJSON);
+            } catch(err) {
+                reject(err)
+            }
+        });
+    })
 }
 
 /**
@@ -82,7 +84,8 @@ function sendError(res, error) {
         data: null,
         pagination: null,
         error: {
-            msg: error.message
+            msg: error.message,
+            code: error.errno
         }
     })
 }
@@ -109,7 +112,7 @@ function checkParams(type, page) {
 }
 
 /**
- * Функция для разбиения на страницы с сортировкой по нужному типу
+ * Функция для разбиения на страницы с одновременной сортировкой по нужному типу
  * @param events
  * @param type
  * @returns {Array}

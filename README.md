@@ -1,26 +1,38 @@
-Запуск ``npm start``
+# Node JS Homework
+## Запуск проекта
+```
+npm i
+npm start
+```
+## Описание
+Пагинация реализована в виде страниц фиксированного размера, который задается 
+в константе на сервере. И в любом случае возвращается страница. Даже
+если параметр page=Number отсутствует. В случае некорректного page или
+его отсутствия, сервер вернет первую страницу
 
-В проекте используется **express.Routes()** для создания отдельных
-файлов под все запросы по определенному пути.
+В случае некорректного type сервер возварщает ошибку со статусом 400.
+Если type отсутствует, то возвращаются все типы элементов events
 
 Сервер возвращает ответы в JSON:
 
-1. /status\
-**timeFromLaunch**: hh:mm:ss
+### /status
+``{ timeFromLaunch: hh:mm:ss }``
 
-2. /api/events\
-**data**: Arr,  
-**error**: Obj,   
-**pagination**: Obj
+### /api/events
+```angular2html
+data: [{}, {}, ...],  
+error: {
+    code: Number,
+    msg: String
+},   
+pagination: {
+    currentPage: Number,
+    nextPage: Number,
+    prevPage: Number,
+    total: Number
+}
+```
 
-
-Объект **Pagination**:\
-**currentPage**: Number,\
-**nextyPage**: Number,\
-**prevPage**: Number,\
-**total**: Number
-
-Объект **Error**:\
-**msg**: String
-
-Для api/events реализована возможность выполнять и GET и POST запросы
+Для api/events реализована возможность выполнять и GET и POST запросы.
+В зависимости от того, какой запрос выполняется, Node будет брать параметры либо
+из заголовка либо из тела.

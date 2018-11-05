@@ -5,6 +5,16 @@
   "scripts": {
     "start": "node ./dist/app"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Coudnet/nodejs-shri2018.git"
+  },
+  "author": "Grisha Fokin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Coudnet/nodejs-shri2018/issues"
+  },
+  "homepage": "hhttps://github.com/Coudnet/nodejs-shri2018#readme",
   "dependencies": {
     "@types/express": "^4.16.0",
     "@types/node": "^10.12.0",

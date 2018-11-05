@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
-const pageSize = 10; // Размер страницы выдачи
+const pageSize = 30; // Размер страницы выдачи
 const correctTypes = ["info", "critical"]; //  Массив корректных параметров
 /**
  * Класс для генерации ошибки некорректного входного параметра

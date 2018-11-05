@@ -12,7 +12,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
+const middleware_1 = require("./middleware/middleware");
 const apiRoute = __importStar(require("./routes/api"));
+const pageRoute = __importStar(require("./routes/page"));
 const statusRoute = __importStar(require("./routes/status"));
 const app = express_1.default();
 const port = 8000;
@@ -21,7 +23,10 @@ let server = http_1.default.createServer(app);
 server.listen(port);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use(middleware_1.setHeadersMiddleware);
 app.get("/api/events", apiRoute.getEvents);
+app.get("/page", pageRoute.getPage);
+app.post("/page", pageRoute.postPage);
 app.post("/api/events", apiRoute.postEvents);
 app.get("/status", statusRoute.getUpTime);
 app.use((req, res) => {

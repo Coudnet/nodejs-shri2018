@@ -3,7 +3,7 @@ import fs from "fs";
 import {IApplicationInternalError, IApplicationParams, IDataSmartHomeEvents, ISmartHomeEvent} from "./interfaces";
 
 
-const pageSize: number = 10; // Размер страницы выдачи
+const pageSize: number = 30; // Размер страницы выдачи
 
 const correctTypes: string[] = ["info", "critical"]; //  Массив корректных параметров
 

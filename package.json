@@ -1,7 +1,6 @@
 {
   "name": "node-js-shri2018",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "start": "node ./dist/app"
   },

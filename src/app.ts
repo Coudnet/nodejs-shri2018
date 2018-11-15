@@ -1,6 +1,7 @@
 import express from "express";
 import { Request, Response } from "express";
 import http from "http";
+import {config} from "./config";
 import {setHeadersMiddleware} from "./middleware/middleware";
 import * as apiRoute from "./routes/api";
 import * as pageRoute from "./routes/page";
@@ -8,11 +9,9 @@ import * as statusRoute from "./routes/status";
 
 const app = express();
 
-const port = 8000;
-
-app.set("port", port);
+app.set("port", config.port);
 let server = http.createServer(app);
-server.listen(port);
+server.listen(config.port);
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
